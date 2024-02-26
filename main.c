@@ -26,18 +26,24 @@ int main(int argc, char* argv[]) {
 
     // Initialize SDL_ttf
     TTF_Init();
-    TTF_Font* font = TTF_OpenFont("arial.ttf", 24); // Change "your_font.ttf" to the path of your font file
+    TTF_Font* font = TTF_OpenFont("arial.ttf", 24); // Change "arial.ttf" to the path of your font file
 
-    // Create a color for the text (white)
-    SDL_Color textColor = {255, 255, 255};
+    // Create a color for the text (black)
+    SDL_Color textColor = {0, 0, 0};
 
     // Render text to surface
     SDL_Surface* textSurface = TTF_RenderText_Solid(font, "YAAW", textColor);
 
     // Set the position of the text
     SDL_Rect textPosition;
-    textPosition.x = 1010;
-    textPosition.y = 317;
+    textPosition.x = 1100;
+    textPosition.y = 360;
+
+    // Load button image
+    SDL_Surface* button = IMG_Load("button1.png");
+    SDL_Rect buttonPosition;
+    buttonPosition.x = 1100;
+    buttonPosition.y = 360;
 
     // Blit text onto the screen
     SDL_BlitSurface(textSurface, NULL, screen, &textPosition);
@@ -45,11 +51,29 @@ int main(int argc, char* argv[]) {
 
     // Main loop
     int quit = 0;
+    int mouse_x, mouse_y;
     SDL_Event event;
     while (!quit) {
         while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                quit = 1;
+            switch (event.type) {
+                case SDL_QUIT:
+                    quit = 1;
+                    break;
+                case SDL_MOUSEMOTION:
+                    mouse_x = event.motion.x;
+                    mouse_y = event.motion.y;
+                    // Check if mouse is over the text
+                    if (mouse_x >= textPosition.x && mouse_x <= textPosition.x + textSurface->w &&
+                        mouse_y >= textPosition.y && mouse_y <= textPosition.y + textSurface->h) {
+                        // Render button image
+                        SDL_BlitSurface(button, NULL, screen, &buttonPosition);
+                        SDL_Flip(screen);
+                    } else {
+                        // Clear button image
+                        SDL_BlitSurface(background, &buttonPosition, screen, &buttonPosition);
+                        SDL_Flip(screen);
+                    }
+                    break;
             }
         }
     }
@@ -59,6 +83,7 @@ int main(int argc, char* argv[]) {
     Mix_CloseAudio();
     SDL_FreeSurface(background);
     SDL_FreeSurface(textSurface);
+    SDL_FreeSurface(button);
     TTF_CloseFont(font);
     TTF_Quit();
     SDL_Quit();
