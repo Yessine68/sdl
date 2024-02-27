@@ -3,14 +3,15 @@
 #include <SDL/SDL_mixer.h>
 #include <SDL/SDL_ttf.h>
 #include <stdbool.h>
+#include "new_window.h"
 
 // Function to create a new window
-SDL_Surface *createWindow(const char *title, int width, int height)
+/* SDL_Surface *createWindow(const char *title, int width, int height)
 {
     SDL_Surface *newScreen = SDL_SetVideoMode(width, height, 32, SDL_SWSURFACE);
     SDL_WM_SetCaption(title, NULL);
     return newScreen;
-}
+} */
 
 int main(int argc, char *argv[])
 {
@@ -138,16 +139,11 @@ int main(int argc, char *argv[])
 
         if (buttonClicked)
         {
-            SDL_Surface *newWindow = createWindow("New Window", 1457, 817);
-
-            // Blit the map image onto the new window
-            SDL_BlitSurface(map, NULL, newWindow, NULL);
-            SDL_Flip(newWindow);
+            SDL_Surface* newWindow = createWindow("New Window", 1457, 817);
 
             // Delay for demonstration purposes (optional)
             SDL_Delay(3000);
 
-            // Free the surface of the new window
             SDL_FreeSurface(newWindow);
         }
     }
