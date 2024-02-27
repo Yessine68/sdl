@@ -2,6 +2,14 @@
 #include <SDL/SDL_image.h>
 #include <SDL/SDL_mixer.h>
 #include <SDL/SDL_ttf.h>
+#include <stdbool.h>
+
+// Function to create a new window
+SDL_Surface* createWindow(const char* title, int width, int height) {
+    SDL_Surface* newScreen = SDL_SetVideoMode(width, height, 32, SDL_SWSURFACE);
+    SDL_WM_SetCaption(title, NULL);
+    return newScreen;
+}
 
 int main(int argc, char* argv[]) {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
@@ -10,6 +18,9 @@ int main(int argc, char* argv[]) {
 
     // Load background image
     SDL_Surface* background = IMG_Load("background1.png");
+
+    // Load new window background image
+    SDL_Surface* map = IMG_Load("map.png");
 
     // Blit the background to the screen
     SDL_BlitSurface(background, NULL, screen, NULL);
@@ -61,6 +72,7 @@ int main(int argc, char* argv[]) {
     // Blit text onto the screen
   //  SDL_BlitSurface(textSurface, NULL, screen, &textPosition);
   //  SDL_Flip(screen);
+        bool buttonClicked = false;
 
     // Main loop
     int quit = 0;
@@ -104,7 +116,33 @@ int main(int argc, char* argv[]) {
             SDL_Flip(screen);
         }
         break;
+    case SDL_MOUSEBUTTONDOWN:
+                            if (mouse_x >= 1100 && mouse_x <= 1300 &&
+                                mouse_y >= 360 && mouse_y <= 380) {
+                                // Click detected within button1 area, perform action to switch to another page
+                                buttonClicked = true;
+                            }
+                            else if (mouse_x >= 1000 && mouse_x <= 1370 &&
+                                     mouse_y >= 522 && mouse_y <= 566) {
+                                quit = 1;
+
+                            }
+                            break;    
 }
+        }
+
+        if (buttonClicked) {
+            SDL_Surface* newWindow = createWindow("New Window", 1457, 817);
+
+            // Blit the map image onto the new window
+            SDL_BlitSurface(map, NULL, newWindow, NULL);
+            SDL_Flip(newWindow);
+
+            // Delay for demonstration purposes (optional)
+            SDL_Delay(3000);
+
+            // Free the surface of the new window
+            SDL_FreeSurface(newWindow);
         }
     }
 
