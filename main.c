@@ -40,10 +40,10 @@ int main(int argc, char* argv[]) {
     textPosition.y = 360;
 
     // Load button image
-    SDL_Surface* button = IMG_Load("button1_big.png");
-    SDL_Rect buttonPosition;
-    buttonPosition.x = 1000;
-    buttonPosition.y = 320;
+    SDL_Surface* button1 = IMG_Load("button1_big.png");
+    SDL_Rect buttonPosition1;
+    buttonPosition1.x = 1000;
+    buttonPosition1.y = 320;
 
 
 
@@ -52,6 +52,12 @@ int main(int argc, char* argv[]) {
     buttonPosition2.x = 930;
     buttonPosition2.y = 420;
 
+
+
+    SDL_Surface* button3 = IMG_Load("button3_big.png");
+    SDL_Rect buttonPosition3;
+    buttonPosition3.x = 985;
+    buttonPosition3.y = 515;
     // Blit text onto the screen
   //  SDL_BlitSurface(textSurface, NULL, screen, &textPosition);
   //  SDL_Flip(screen);
@@ -73,7 +79,7 @@ int main(int argc, char* argv[]) {
         if (mouse_x >= 1100 && mouse_x <= 1300 &&
             mouse_y >= 360 && mouse_y <= 380) {
             // Render button image
-            SDL_BlitSurface(button, NULL, screen, &buttonPosition);
+            SDL_BlitSurface(button1, NULL, screen, &buttonPosition1);
             SDL_Flip(screen);
         }
          else if (mouse_x >= 971 && mouse_x <= 1211 &&
@@ -82,10 +88,18 @@ int main(int argc, char* argv[]) {
             SDL_BlitSurface(button2, NULL, screen, &buttonPosition2);
             SDL_Flip(screen);
         }
+        else if (mouse_x >= 1000 && mouse_x <= 1370 &&
+            mouse_y >= 522 && mouse_y <= 566) {
+            // Render button image
+            SDL_BlitSurface(button3, NULL, screen, &buttonPosition3);
+            SDL_Flip(screen);
+        }
          else {
             // Clear button image
-            SDL_BlitSurface(background, &buttonPosition, screen, &buttonPosition);
+            SDL_BlitSurface(background, &buttonPosition1, screen, &buttonPosition1);
             SDL_BlitSurface(background, &buttonPosition2, screen, &buttonPosition2);
+            SDL_BlitSurface(background, &buttonPosition3, screen, &buttonPosition3);
+
 
             SDL_Flip(screen);
         }
@@ -99,7 +113,7 @@ int main(int argc, char* argv[]) {
     Mix_CloseAudio();
     SDL_FreeSurface(background);
    // SDL_FreeSurface(textSurface);
-    SDL_FreeSurface(button);
+    SDL_FreeSurface(button1);
     TTF_CloseFont(font);
     TTF_Quit();
     SDL_Quit();
