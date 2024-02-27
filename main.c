@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
     SDL_Color textColor = {0, 0, 0};
 
     // Render text to surface
-    SDL_Surface* textSurface = TTF_RenderText_Solid(font, "YAAW", textColor);
+   // SDL_Surface* textSurface = TTF_RenderText_Solid(font, "YAAW", textColor);
 
     // Set the position of the text
     SDL_Rect textPosition;
@@ -40,14 +40,21 @@ int main(int argc, char* argv[]) {
     textPosition.y = 360;
 
     // Load button image
-    SDL_Surface* button = IMG_Load("button1.png");
+    SDL_Surface* button = IMG_Load("button1_big.png");
     SDL_Rect buttonPosition;
-    buttonPosition.x = 1100;
-    buttonPosition.y = 360;
+    buttonPosition.x = 1000;
+    buttonPosition.y = 320;
+
+
+
+    SDL_Surface* button2 = IMG_Load("button2_big.png");
+    SDL_Rect buttonPosition2;
+    buttonPosition2.x = 930;
+    buttonPosition2.y = 420;
 
     // Blit text onto the screen
-    SDL_BlitSurface(textSurface, NULL, screen, &textPosition);
-    SDL_Flip(screen);
+  //  SDL_BlitSurface(textSurface, NULL, screen, &textPosition);
+  //  SDL_Flip(screen);
 
     // Main loop
     int quit = 0;
@@ -56,25 +63,34 @@ int main(int argc, char* argv[]) {
     while (!quit) {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
-                case SDL_QUIT:
-                    quit = 1;
-                    break;
-                case SDL_MOUSEMOTION:
-                    mouse_x = event.motion.x;
-                    mouse_y = event.motion.y;
-                    // Check if mouse is over the text
-                    if (mouse_x >= textPosition.x && mouse_x <= textPosition.x + textSurface->w &&
-                        mouse_y >= textPosition.y && mouse_y <= textPosition.y + textSurface->h) {
-                        // Render button image
-                        SDL_BlitSurface(button, NULL, screen, &buttonPosition);
-                        SDL_Flip(screen);
-                    } else {
-                        // Clear button image
-                        SDL_BlitSurface(background, &buttonPosition, screen, &buttonPosition);
-                        SDL_Flip(screen);
-                    }
-                    break;
-            }
+    case SDL_QUIT:
+        quit = 1;
+        break;
+    case SDL_MOUSEMOTION:
+        mouse_x = event.motion.x;
+        mouse_y = event.motion.y;
+        // Check if mouse is within the specified ranges
+        if (mouse_x >= 1100 && mouse_x <= 1300 &&
+            mouse_y >= 360 && mouse_y <= 380) {
+            // Render button image
+            SDL_BlitSurface(button, NULL, screen, &buttonPosition);
+            SDL_Flip(screen);
+        }
+         else if (mouse_x >= 971 && mouse_x <= 1211 &&
+            mouse_y >= 431 && mouse_y <= 475) {
+            // Render button image
+            SDL_BlitSurface(button2, NULL, screen, &buttonPosition2);
+            SDL_Flip(screen);
+        }
+         else {
+            // Clear button image
+            SDL_BlitSurface(background, &buttonPosition, screen, &buttonPosition);
+            SDL_BlitSurface(background, &buttonPosition2, screen, &buttonPosition2);
+
+            SDL_Flip(screen);
+        }
+        break;
+}
         }
     }
 
@@ -82,7 +98,7 @@ int main(int argc, char* argv[]) {
     Mix_FreeMusic(music);
     Mix_CloseAudio();
     SDL_FreeSurface(background);
-    SDL_FreeSurface(textSurface);
+   // SDL_FreeSurface(textSurface);
     SDL_FreeSurface(button);
     TTF_CloseFont(font);
     TTF_Quit();
