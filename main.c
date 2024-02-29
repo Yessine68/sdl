@@ -105,10 +105,10 @@ int main(int argc, char *argv[])
         loadHoverSound();
 
     // Load background music
-  //  Mix_Music *music = Mix_LoadMUS("assets/son.mp3");
+    Mix_Music *music = Mix_LoadMUS("assets/son.mp3");
 
     // Play the background music indefinitely
-   // Mix_PlayMusic(music, -1);
+    Mix_PlayMusic(music, -1);
 
     // Initialize SDL_ttf
     TTF_Init();
