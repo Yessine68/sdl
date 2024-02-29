@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include "new_window.h"
      bool   hoverSoundPlayed = false;
+     Mix_Chunk *hoverSound = NULL; // Define hover sound globally
+
 
 bool initMixer() {
     // Initialize SDL_mixer
@@ -44,32 +46,38 @@ void displayImages(SDL_Surface *screen) {
     }
 }
 
-void playHoverSound() {
-    // If the hover sound has already been played, return
-    if (hoverSoundPlayed) {
-        return;
-    }
-
+void loadHoverSound() {
     // Load hover sound
-    Mix_Chunk *hoverSound = Mix_LoadWAV("bas.wav");
-
-    // Check if sound loaded successfully
+    hoverSound = Mix_LoadWAV("assets/play.wav");
     if (hoverSound == NULL) {
         printf("Unable to load sound bas.wav! SDL_mixer Error: %s\n", Mix_GetError());
+    }
+}
+
+void playHoverSound() {
+    // If the hover sound has already been played or not loaded, return
+    if (hoverSoundPlayed || hoverSound == NULL) {
         return;
     }
 
     // Play hover sound once
-    if (Mix_PlayChannel(-1, hoverSound, 0) == -1) {
+    int channel = Mix_PlayChannel(-1, hoverSound, 0);
+    if (channel == -1) {
         printf("Unable to play sound bas.wav! SDL_mixer Error: %s\n", Mix_GetError());
+        return;
     }
 
     // Set the flag to true to indicate that the sound has been played
     hoverSoundPlayed = true;
-
     printf("ray\n");
 }
-
+void stopHoverSound() {
+    // Stop playing the sound
+    if (hoverSoundPlayed) {
+        Mix_HaltChannel(-1);
+        hoverSoundPlayed = false;
+    }
+}
 
 
 
@@ -94,6 +102,7 @@ int main(int argc, char *argv[])
     if (!initMixer()) {
         return 1;
     }
+        loadHoverSound();
 
     // Load background music
   //  Mix_Music *music = Mix_LoadMUS("assets/son.mp3");
@@ -159,12 +168,13 @@ int main(int argc, char *argv[])
                     // Render button image
                     SDL_BlitSurface(button1, NULL, screen, &buttonPosition1);
                     SDL_Flip(screen);
-                        playHoverSound();
+                    playHoverSound();
 
                 }
                 else if (mouse_x >= 971 && mouse_x <= 1211 &&
                          mouse_y >= 431 && mouse_y <= 475)
-                {           hoverSoundPlayed = false;
+                {                               stopHoverSound();
+
 
                     // Render button image
                     SDL_BlitSurface(button2, NULL, screen, &buttonPosition2);
@@ -172,14 +182,16 @@ int main(int argc, char *argv[])
                 }
                 else if (mouse_x >= 1000 && mouse_x <= 1370 &&
                          mouse_y >= 522 && mouse_y <= 566)
-                {           hoverSoundPlayed = false;
+                {                               stopHoverSound();
+
 
                     // Render button image
                     SDL_BlitSurface(button3, NULL, screen, &buttonPosition3);
                     SDL_Flip(screen);
                 }
                 else
-                {           hoverSoundPlayed = false;
+                {                               stopHoverSound();
+
 
                     // Clear button image
                     SDL_BlitSurface(background, &buttonPosition1, screen, &buttonPosition1);
