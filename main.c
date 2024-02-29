@@ -4,24 +4,30 @@
 #include <SDL/SDL_ttf.h>
 #include <stdbool.h>
 #include "new_window.h"
-     bool   hoverSoundPlayed = false;
-     Mix_Chunk *hoverSound = NULL; // Define hover sound globally
+bool hoverSoundPlayed = false;
+bool selectSoundPlayed = false;
 
+Mix_Chunk *hoverSound = NULL;  // Define hover sound globally
+Mix_Chunk *selectSound = NULL; // Define select sound globally
 
-bool initMixer() {
+bool initMixer()
+{
     // Initialize SDL_mixer
-    if (Mix_OpenAudio(22050, AUDIO_S16SYS, 2, 4096) == -1) {
+    if (Mix_OpenAudio(22050, AUDIO_S16SYS, 2, 4096) == -1)
+    {
         printf("Unable to initialize SDL_mixer! SDL_mixer Error: %s\n", Mix_GetError());
         return false;
     }
     return true;
 }
 
-void displayImages(SDL_Surface *screen) {
+void displayImages(SDL_Surface *screen)
+{
     SDL_Surface *image;
     char filename[50]; // Increased buffer size to accommodate the folder path
 
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < 10; ++i)
+    {
         // Construct filename for each image with the folder path
         snprintf(filename, sizeof(filename), "assets/background%d.jpg", i); // Use snprintf to prevent buffer overflow
 
@@ -29,7 +35,8 @@ void displayImages(SDL_Surface *screen) {
         image = IMG_Load(filename);
 
         // Check if image loaded successfully
-        if (image == NULL) {
+        if (image == NULL)
+        {
             printf("Unable to load image %s! SDL Error: %s\n", filename, SDL_GetError());
             continue;
         }
@@ -46,23 +53,37 @@ void displayImages(SDL_Surface *screen) {
     }
 }
 
-void loadHoverSound() {
+void loadHoverSound()
+{
     // Load hover sound
     hoverSound = Mix_LoadWAV("assets/play.wav");
-    if (hoverSound == NULL) {
+    if (hoverSound == NULL)
+    {
         printf("Unable to load sound bas.wav! SDL_mixer Error: %s\n", Mix_GetError());
     }
 }
+void loadSelectSound()
+{
+    // Load select sound
+    selectSound = Mix_LoadWAV("assets/select.wav");
+    if (selectSound == NULL)
+    {
+        printf("Unable to load sound select.wav! SDL_mixer Error: %s\n", Mix_GetError());
+    }
+}
 
-void playHoverSound() {
+void playHoverSound()
+{
     // If the hover sound has already been played or not loaded, return
-    if (hoverSoundPlayed || hoverSound == NULL) {
+    if (hoverSoundPlayed || hoverSound == NULL)
+    {
         return;
     }
 
     // Play hover sound once
     int channel = Mix_PlayChannel(-1, hoverSound, 0);
-    if (channel == -1) {
+    if (channel == -1)
+    {
         printf("Unable to play sound bas.wav! SDL_mixer Error: %s\n", Mix_GetError());
         return;
     }
@@ -71,18 +92,48 @@ void playHoverSound() {
     hoverSoundPlayed = true;
     printf("ray\n");
 }
-void stopHoverSound() {
+void stopHoverSound()
+{
     // Stop playing the sound
-    if (hoverSoundPlayed) {
+    if (hoverSoundPlayed)
+    {
         Mix_HaltChannel(-1);
         hoverSoundPlayed = false;
     }
 }
+void playSelectSound()
+{
+    // Play select sound once
+    // If the hover sound has already been played or not loaded, return
+    if (selectSoundPlayed || selectSound == NULL)
+    {
+        return;
+    }
 
+    // Play hover sound once
+    int channel = Mix_PlayChannel(-1, selectSound, 0);
+    if (channel == -1)
+    {
+        printf("Unable to play sound bas.wav! SDL_mixer Error: %s\n", Mix_GetError());
+        return;
+    }
 
+    // Set the flag to true to indicate that the sound has been played
+    selectSoundPlayed = true;
+    printf("ray\n");
+}
+void stopSelectSound()
+{
+    // Stop playing the sound
+    if (selectSoundPlayed)
+    {
+        Mix_HaltChannel(-1);
+        selectSoundPlayed = false;
+    }
+}
 
 int main(int argc, char *argv[])
-{   
+{
 
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     SDL_Surface *screen = SDL_SetVideoMode(1457, 817, 32, SDL_SWSURFACE);
@@ -99,16 +150,21 @@ int main(int argc, char *argv[])
     SDL_Flip(screen);
 
     // Initialize SDL_mixer
-    if (!initMixer()) {
+    if (!initMixer())
+    {
         return 1;
     }
-        loadHoverSound();
+    loadHoverSound();
+    loadSelectSound();
 
     // Load background music
     Mix_Music *music = Mix_LoadMUS("assets/son.mp3");
 
     // Play the background music indefinitely
     Mix_PlayMusic(music, -1);
+
+        Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
+
 
     // Initialize SDL_ttf
     TTF_Init();
@@ -169,12 +225,13 @@ int main(int argc, char *argv[])
                     SDL_BlitSurface(button1, NULL, screen, &buttonPosition1);
                     SDL_Flip(screen);
                     playHoverSound();
-
+                    stopSelectSound();
                 }
                 else if (mouse_x >= 971 && mouse_x <= 1211 &&
                          mouse_y >= 431 && mouse_y <= 475)
-                {                               stopHoverSound();
-
+                {
+                    stopHoverSound();
+                    playSelectSound(); // Play select sound for button 2
 
                     // Render button image
                     SDL_BlitSurface(button2, NULL, screen, &buttonPosition2);
@@ -182,17 +239,18 @@ int main(int argc, char *argv[])
                 }
                 else if (mouse_x >= 1000 && mouse_x <= 1370 &&
                          mouse_y >= 522 && mouse_y <= 566)
-                {                               stopHoverSound();
-
+                {
+                    stopHoverSound();
+                    playSelectSound(); // Play select sound for button 2
 
                     // Render button image
                     SDL_BlitSurface(button3, NULL, screen, &buttonPosition3);
                     SDL_Flip(screen);
                 }
                 else
-                {                               stopHoverSound();
-
-
+                {
+                    stopHoverSound();
+                    stopSelectSound();
                     // Clear button image
                     SDL_BlitSurface(background, &buttonPosition1, screen, &buttonPosition1);
                     SDL_BlitSurface(background, &buttonPosition2, screen, &buttonPosition2);
@@ -204,13 +262,14 @@ int main(int argc, char *argv[])
             case SDL_MOUSEBUTTONDOWN:
                 if (mouse_x >= 1100 && mouse_x <= 1300 &&
                     mouse_y >= 360 && mouse_y <= 380)
-                {     displayImages(screen);
+                {
+                    displayImages(screen);
                     // Click detected within button1 area, perform action to switch to another page
                     buttonClicked = true;
                 }
                 else if (mouse_x >= 1000 && mouse_x <= 1370 &&
                          mouse_y >= 522 && mouse_y <= 566)
-                {   
+                {
                     quit = 1;
                 }
                 break;
@@ -219,7 +278,7 @@ int main(int argc, char *argv[])
 
         if (buttonClicked)
         {
-            SDL_Surface* newWindow = createWindow("New Window", 1457, 817);
+            SDL_Surface *newWindow = createWindow("New Window", 1457, 817);
 
             // Delay for demonstration purposes (optional)
             SDL_Delay(3000);
@@ -229,7 +288,7 @@ int main(int argc, char *argv[])
     }
 
     // Cleanup
-  //  Mix_FreeMusic(music);
+    //  Mix_FreeMusic(music);
     Mix_CloseAudio();
     SDL_FreeSurface(background);
     // SDL_FreeSurface(textSurface);
