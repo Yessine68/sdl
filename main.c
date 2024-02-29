@@ -4,14 +4,17 @@
 #include <SDL/SDL_ttf.h>
 #include <stdbool.h>
 #include "new_window.h"
+     bool   hoverSoundPlayed = false;
 
-// Function to create a new window
-/* SDL_Surface *createWindow(const char *title, int width, int height)
-{
-    SDL_Surface *newScreen = SDL_SetVideoMode(width, height, 32, SDL_SWSURFACE);
-    SDL_WM_SetCaption(title, NULL);
-    return newScreen;
-} */
+bool initMixer() {
+    // Initialize SDL_mixer
+    if (Mix_OpenAudio(22050, AUDIO_S16SYS, 2, 4096) == -1) {
+        printf("Unable to initialize SDL_mixer! SDL_mixer Error: %s\n", Mix_GetError());
+        return false;
+    }
+    return true;
+}
+
 void displayImages(SDL_Surface *screen) {
     SDL_Surface *image;
     char filename[50]; // Increased buffer size to accommodate the folder path
@@ -40,8 +43,39 @@ void displayImages(SDL_Surface *screen) {
         SDL_Delay(500); // Adjusted delay to 500 milliseconds
     }
 }
+
+void playHoverSound() {
+    // If the hover sound has already been played, return
+    if (hoverSoundPlayed) {
+        return;
+    }
+
+    // Load hover sound
+    Mix_Chunk *hoverSound = Mix_LoadWAV("bas.wav");
+
+    // Check if sound loaded successfully
+    if (hoverSound == NULL) {
+        printf("Unable to load sound bas.wav! SDL_mixer Error: %s\n", Mix_GetError());
+        return;
+    }
+
+    // Play hover sound once
+    if (Mix_PlayChannel(-1, hoverSound, 0) == -1) {
+        printf("Unable to play sound bas.wav! SDL_mixer Error: %s\n", Mix_GetError());
+    }
+
+    // Set the flag to true to indicate that the sound has been played
+    hoverSoundPlayed = true;
+
+    printf("ray\n");
+}
+
+
+
+
 int main(int argc, char *argv[])
-{
+{   
+
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     SDL_Surface *screen = SDL_SetVideoMode(1457, 817, 32, SDL_SWSURFACE);
     SDL_WM_SetCaption("SDL Background with Music", NULL);
@@ -57,13 +91,15 @@ int main(int argc, char *argv[])
     SDL_Flip(screen);
 
     // Initialize SDL_mixer
-    Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096);
+    if (!initMixer()) {
+        return 1;
+    }
 
     // Load background music
-    Mix_Music *music = Mix_LoadMUS("assets/son.mp3");
+  //  Mix_Music *music = Mix_LoadMUS("assets/son.mp3");
 
     // Play the background music indefinitely
-    Mix_PlayMusic(music, -1);
+   // Mix_PlayMusic(music, -1);
 
     // Initialize SDL_ttf
     TTF_Init();
@@ -123,23 +159,28 @@ int main(int argc, char *argv[])
                     // Render button image
                     SDL_BlitSurface(button1, NULL, screen, &buttonPosition1);
                     SDL_Flip(screen);
+                        playHoverSound();
+
                 }
                 else if (mouse_x >= 971 && mouse_x <= 1211 &&
                          mouse_y >= 431 && mouse_y <= 475)
-                {
+                {           hoverSoundPlayed = false;
+
                     // Render button image
                     SDL_BlitSurface(button2, NULL, screen, &buttonPosition2);
                     SDL_Flip(screen);
                 }
                 else if (mouse_x >= 1000 && mouse_x <= 1370 &&
                          mouse_y >= 522 && mouse_y <= 566)
-                {
+                {           hoverSoundPlayed = false;
+
                     // Render button image
                     SDL_BlitSurface(button3, NULL, screen, &buttonPosition3);
                     SDL_Flip(screen);
                 }
                 else
-                {
+                {           hoverSoundPlayed = false;
+
                     // Clear button image
                     SDL_BlitSurface(background, &buttonPosition1, screen, &buttonPosition1);
                     SDL_BlitSurface(background, &buttonPosition2, screen, &buttonPosition2);
@@ -157,7 +198,7 @@ int main(int argc, char *argv[])
                 }
                 else if (mouse_x >= 1000 && mouse_x <= 1370 &&
                          mouse_y >= 522 && mouse_y <= 566)
-                {
+                {   
                     quit = 1;
                 }
                 break;
@@ -176,7 +217,7 @@ int main(int argc, char *argv[])
     }
 
     // Cleanup
-    Mix_FreeMusic(music);
+  //  Mix_FreeMusic(music);
     Mix_CloseAudio();
     SDL_FreeSurface(background);
     // SDL_FreeSurface(textSurface);
