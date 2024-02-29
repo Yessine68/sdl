@@ -12,7 +12,34 @@
     SDL_WM_SetCaption(title, NULL);
     return newScreen;
 } */
+void displayImages(SDL_Surface *screen) {
+    SDL_Surface *image;
+    char filename[50]; // Increased buffer size to accommodate the folder path
 
+    for (int i = 0; i < 10; ++i) {
+        // Construct filename for each image with the folder path
+        snprintf(filename, sizeof(filename), "assets/background%d.jpg", i); // Use snprintf to prevent buffer overflow
+
+        // Load image
+        image = IMG_Load(filename);
+
+        // Check if image loaded successfully
+        if (image == NULL) {
+            printf("Unable to load image %s! SDL Error: %s\n", filename, SDL_GetError());
+            continue;
+        }
+
+        // Blit image to screen
+        SDL_BlitSurface(image, NULL, screen, NULL);
+        SDL_Flip(screen);
+
+        // Free image surface
+        SDL_FreeSurface(image);
+
+        // Delay for 0.5 seconds
+        SDL_Delay(500); // Adjusted delay to 500 milliseconds
+    }
+}
 int main(int argc, char *argv[])
 {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
@@ -20,10 +47,10 @@ int main(int argc, char *argv[])
     SDL_WM_SetCaption("SDL Background with Music", NULL);
 
     // Load background image
-    SDL_Surface *background = IMG_Load("background1.png");
+    SDL_Surface *background = IMG_Load("assets/background.png");
 
     // Load new window background image
-    SDL_Surface *map = IMG_Load("map.png");
+    SDL_Surface *map = IMG_Load("assets/map.png");
 
     // Blit the background to the screen
     SDL_BlitSurface(background, NULL, screen, NULL);
@@ -33,7 +60,7 @@ int main(int argc, char *argv[])
     Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096);
 
     // Load background music
-    Mix_Music *music = Mix_LoadMUS("son.mp3");
+    Mix_Music *music = Mix_LoadMUS("assets/son.mp3");
 
     // Play the background music indefinitely
     Mix_PlayMusic(music, -1);
@@ -54,17 +81,17 @@ int main(int argc, char *argv[])
     textPosition.y = 360;
 
     // Load button image
-    SDL_Surface *button1 = IMG_Load("button1_big.png");
+    SDL_Surface *button1 = IMG_Load("assets/button1_big.png");
     SDL_Rect buttonPosition1;
     buttonPosition1.x = 1000;
     buttonPosition1.y = 320;
 
-    SDL_Surface *button2 = IMG_Load("button2_big.png");
+    SDL_Surface *button2 = IMG_Load("assets/button2_big.png");
     SDL_Rect buttonPosition2;
     buttonPosition2.x = 930;
     buttonPosition2.y = 420;
 
-    SDL_Surface *button3 = IMG_Load("button3_big.png");
+    SDL_Surface *button3 = IMG_Load("assets/button3_big.png");
     SDL_Rect buttonPosition3;
     buttonPosition3.x = 985;
     buttonPosition3.y = 515;
@@ -124,7 +151,7 @@ int main(int argc, char *argv[])
             case SDL_MOUSEBUTTONDOWN:
                 if (mouse_x >= 1100 && mouse_x <= 1300 &&
                     mouse_y >= 360 && mouse_y <= 380)
-                {
+                {     displayImages(screen);
                     // Click detected within button1 area, perform action to switch to another page
                     buttonClicked = true;
                 }

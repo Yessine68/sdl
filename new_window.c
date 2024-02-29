@@ -7,7 +7,7 @@ SDL_Surface* createWindow(const char* title, int width, int height) {
     SDL_WM_SetCaption(title, NULL);
 
     // Load background image
-    SDL_Surface* map = IMG_Load("map.png");
+    SDL_Surface* map = IMG_Load("assets/map.png");
     SDL_BlitSurface(map, NULL, newScreen, NULL);
     SDL_FreeSurface(map);
 
