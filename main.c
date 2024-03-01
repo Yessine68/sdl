@@ -7,9 +7,11 @@
 bool hoverSoundPlayed = false;
 bool selectSoundPlayed = false;
 SDL_Surface *background = NULL;
+SDL_Surface *cover = NULL;
 SDL_Rect backgroundPosition = {0, 0, 0, 0};
 Mix_Chunk *hoverSound = NULL;  // Define hover sound globally
 Mix_Chunk *selectSound = NULL; // Define select sound globally
+int ScreenCleared = 0;
 
 bool initMixer()
 {
@@ -117,7 +119,6 @@ void playSelectSound()
 
     // Set the flag to true to indicate that the sound has been played
     selectSoundPlayed = true;
-  
 }
 void stopSelectSound()
 {
@@ -142,6 +143,10 @@ void handleSettings(SDL_Surface *screen)
     // Load button images
     SDL_Surface *buttonFullscreen = IMG_Load("assets/full.png");
     SDL_Surface *buttonWindowed = IMG_Load("assets/window.png");
+    SDL_Surface *buttonPlus = IMG_Load("assets/inc_volume.png");
+    SDL_Surface *buttonMinus = IMG_Load("assets/dec_volume.png");
+    SDL_Surface *buttonBack = IMG_Load("assets/back.png");
+
     if (buttonFullscreen == NULL || buttonWindowed == NULL)
     {
         printf("Failed to load button images: %s\n", IMG_GetError());
@@ -153,11 +158,16 @@ void handleSettings(SDL_Surface *screen)
     SDL_Rect settingsPosition = {0, 0, 0, 0};
     SDL_Rect buttonFullscreenPosition = {100, 200, 0, 0};
     SDL_Rect buttonWindowedPosition = {100, 400, 0, 0};
-
+    SDL_Rect buttonPlusVolPosition = {1000, 200, 0, 0};
+    SDL_Rect buttonMinusVolPosition = {1000, 400, 0, 0};
+    SDL_Rect buttonBackPosition = {1100, 600, 0, 0};
     // Blit the background and buttons to the screen
     SDL_BlitSurface(settingsBackground, NULL, screen, &settingsPosition);
     SDL_BlitSurface(buttonFullscreen, NULL, screen, &buttonFullscreenPosition);
     SDL_BlitSurface(buttonWindowed, NULL, screen, &buttonWindowedPosition);
+    SDL_BlitSurface(buttonPlus, NULL, screen, &buttonPlusVolPosition);
+    SDL_BlitSurface(buttonMinus, NULL, screen, &buttonMinusVolPosition);
+    SDL_BlitSurface(buttonBack, NULL, screen, &buttonBackPosition);
     SDL_Flip(screen);
 
     bool settingsPage = true;
@@ -183,6 +193,9 @@ void handleSettings(SDL_Surface *screen)
                     SDL_BlitSurface(settingsBackground, NULL, screen, &settingsPosition);
                     SDL_BlitSurface(buttonFullscreen, NULL, screen, &buttonFullscreenPosition);
                     SDL_BlitSurface(buttonWindowed, NULL, screen, &buttonWindowedPosition);
+                    SDL_BlitSurface(buttonPlus, NULL, screen, &buttonPlusVolPosition);
+                    SDL_BlitSurface(buttonMinus, NULL, screen, &buttonMinusVolPosition);
+                    SDL_BlitSurface(buttonBack, NULL, screen, &buttonBackPosition);
                     SDL_Flip(screen);
                 }
                 else if (mouse_x >= 100 && mouse_x <= 300 &&
@@ -194,17 +207,74 @@ void handleSettings(SDL_Surface *screen)
                     SDL_BlitSurface(settingsBackground, NULL, screen, &settingsPosition);
                     SDL_BlitSurface(buttonFullscreen, NULL, screen, &buttonFullscreenPosition);
                     SDL_BlitSurface(buttonWindowed, NULL, screen, &buttonWindowedPosition);
+                    SDL_BlitSurface(buttonPlus, NULL, screen, &buttonPlusVolPosition);
+                    SDL_BlitSurface(buttonMinus, NULL, screen, &buttonMinusVolPosition);
+                    SDL_BlitSurface(buttonBack, NULL, screen, &buttonBackPosition);
                     SDL_Flip(screen);
                 }
-            }
-            else if (event.type == SDL_KEYDOWN)
-            {
-                if (event.key.keysym.sym == SDLK_q)
+                else if (mouse_x >= 1200 && mouse_x <= 1400 &&
+                         mouse_y >= 600 && mouse_y <= 700)
                 {
                     // Quit the application
                     settingsPage = false;
                     SDL_BlitSurface(background, NULL, screen, &backgroundPosition);
                     SDL_Flip(screen);
+                }
+                else if (mouse_x >= 1000 && mouse_x <= 1300 &&
+                         mouse_y >= 200 && mouse_y <= 300)
+                {
+                    Mix_VolumeMusic(Mix_VolumeMusic(-1) + 10);
+                    printf("volume increased \n");
+                }
+                else if (mouse_x >= 1000 && mouse_x <= 1300 &&
+                         mouse_y >= 400 && mouse_y <= 500)
+                {
+                    Mix_VolumeMusic(Mix_VolumeMusic(-1) - 10);
+                    printf("volume decreased \n");
+                }
+            }
+            else if (event.type == SDL_KEYDOWN)
+            {
+                if (event.key.keysym.sym == SDLK_b)
+                {
+                    // Quit the application
+                    settingsPage = false;
+                    SDL_BlitSurface(background, NULL, screen, &backgroundPosition);
+                    SDL_Flip(screen);
+                }
+                else if (event.key.keysym.sym == SDLK_w)
+                {
+                    SDL_SetVideoMode(1457, 817, 32, SDL_SWSURFACE);
+                    // Redraw the background after changing the screen mode
+                    SDL_BlitSurface(settingsBackground, NULL, screen, &settingsPosition);
+                    SDL_BlitSurface(buttonFullscreen, NULL, screen, &buttonFullscreenPosition);
+                    SDL_BlitSurface(buttonWindowed, NULL, screen, &buttonWindowedPosition);
+                    SDL_BlitSurface(buttonPlus, NULL, screen, &buttonPlusVolPosition);
+                    SDL_BlitSurface(buttonMinus, NULL, screen, &buttonMinusVolPosition);
+                    SDL_BlitSurface(buttonBack, NULL, screen, &buttonBackPosition);
+                    SDL_Flip(screen);
+                }
+                else if (event.key.keysym.sym == SDLK_f)
+                {
+                    SDL_WM_ToggleFullScreen(screen);
+                    // Redraw the background after changing the screen mode
+                    SDL_BlitSurface(settingsBackground, NULL, screen, &settingsPosition);
+                    SDL_BlitSurface(buttonFullscreen, NULL, screen, &buttonFullscreenPosition);
+                    SDL_BlitSurface(buttonWindowed, NULL, screen, &buttonWindowedPosition);
+                    SDL_BlitSurface(buttonPlus, NULL, screen, &buttonPlusVolPosition);
+                    SDL_BlitSurface(buttonMinus, NULL, screen, &buttonMinusVolPosition);
+                    SDL_BlitSurface(buttonBack, NULL, screen, &buttonBackPosition);
+                    SDL_Flip(screen);
+                }
+                else if (event.key.keysym.sym == SDLK_p)
+                {
+                    Mix_VolumeMusic(Mix_VolumeMusic(-1) + 10);
+                    printf("volume increased \n");
+                }
+                else if (event.key.keysym.sym == SDLK_m)
+                {
+                    Mix_VolumeMusic(Mix_VolumeMusic(-1) - 10);
+                    printf("volume decreased \n");
                 }
             }
         }
@@ -216,12 +286,6 @@ void handleSettings(SDL_Surface *screen)
     SDL_FreeSurface(buttonWindowed);
 }
 
-
-
-
-
-
-
 int main(int argc, char *argv[])
 {
 
@@ -231,7 +295,7 @@ int main(int argc, char *argv[])
 
     // Load background image
     background = IMG_Load("assets/background.png");
-
+    cover = IMG_Load("assets/cover.png");
     // Load new window background image
     SDL_Surface *map = IMG_Load("assets/map.png");
 
@@ -255,21 +319,23 @@ int main(int argc, char *argv[])
 
     Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
 
-    
     // Initialize SDL_ttf
     TTF_Init();
-    TTF_Font *font = TTF_OpenFont("arial.ttf", 24); // Change "arial.ttf" to the path of your font file
+    TTF_Font *font = TTF_OpenFont("bold.ttf", 35); // Change "arial.ttf" to the path of your font file
 
     // Create a color for the text (black)
-    SDL_Color textColor = {0, 0, 0};
+    SDL_Color textColor = {255, 255, 255};
 
     // Render text to surface
-    // SDL_Surface* textSurface = TTF_RenderText_Solid(font, "YAAW", textColor);
+    SDL_Surface *textSurface = TTF_RenderText_Solid(font, "Hello !", textColor);
+    SDL_Surface *textSurfaceSettings = TTF_RenderText_Solid(font, "Settings", textColor);
+    SDL_Surface *textSurfaceQuit = TTF_RenderText_Solid(font, "Quit", textColor);
+    SDL_Surface *textSurfacePlay = TTF_RenderText_Solid(font, "Play", textColor);
 
     // Set the position of the text
     SDL_Rect textPosition;
-    textPosition.x = 1100;
-    textPosition.y = 360;
+    textPosition.x = 100;
+    textPosition.y = 100;
 
     // Load button image
     SDL_Surface *button1 = IMG_Load("assets/button1_big.png");
@@ -287,8 +353,8 @@ int main(int argc, char *argv[])
     buttonPosition3.x = 985;
     buttonPosition3.y = 515;
     // Blit text onto the screen
-    //  SDL_BlitSurface(textSurface, NULL, screen, &textPosition);
-    //  SDL_Flip(screen);
+    SDL_BlitSurface(textSurface, NULL, screen, &textPosition);
+    SDL_Flip(screen);
     bool buttonClicked = false;
 
     // Main loop
@@ -313,9 +379,12 @@ int main(int argc, char *argv[])
                 {
                     // Render button image
                     SDL_BlitSurface(button1, NULL, screen, &buttonPosition1);
+                    SDL_BlitSurface(textSurfacePlay, NULL, screen, &textPosition);
+
                     SDL_Flip(screen);
                     playHoverSound();
                     stopSelectSound();
+                    ScreenCleared = 0;
                 }
                 else if (mouse_x >= 971 && mouse_x <= 1211 &&
                          mouse_y >= 431 && mouse_y <= 475)
@@ -325,7 +394,9 @@ int main(int argc, char *argv[])
 
                     // Render button image
                     SDL_BlitSurface(button2, NULL, screen, &buttonPosition2);
+                    SDL_BlitSurface(textSurfaceSettings, NULL, screen, &textPosition);
                     SDL_Flip(screen);
+                    ScreenCleared = 0;
                 }
                 else if (mouse_x >= 1000 && mouse_x <= 1370 &&
                          mouse_y >= 522 && mouse_y <= 566)
@@ -335,12 +406,22 @@ int main(int argc, char *argv[])
 
                     // Render button image
                     SDL_BlitSurface(button3, NULL, screen, &buttonPosition3);
+                    SDL_BlitSurface(textSurfaceQuit, NULL, screen, &textPosition);
                     SDL_Flip(screen);
+                    ScreenCleared = 0;
                 }
                 else
                 {
                     stopHoverSound();
                     stopSelectSound();
+                    if (ScreenCleared >=0 && (ScreenCleared < 2 )){
+                                ScreenCleared ++;
+                    }
+                    if (ScreenCleared>=1){
+                    SDL_BlitSurface(cover, NULL, screen, NULL);
+
+                    }
+
                     // Clear button image
                     SDL_BlitSurface(background, &buttonPosition1, screen, &buttonPosition1);
                     SDL_BlitSurface(background, &buttonPosition2, screen, &buttonPosition2);
