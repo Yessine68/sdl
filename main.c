@@ -6,7 +6,8 @@
 #include "new_window.h"
 bool hoverSoundPlayed = false;
 bool selectSoundPlayed = false;
-
+SDL_Surface *background = NULL;
+SDL_Rect backgroundPosition = {0, 0, 0, 0};
 Mix_Chunk *hoverSound = NULL;  // Define hover sound globally
 Mix_Chunk *selectSound = NULL; // Define select sound globally
 
@@ -20,7 +21,6 @@ bool initMixer()
     }
     return true;
 }
-
 void displayImages(SDL_Surface *screen)
 {
     SDL_Surface *image;
@@ -52,7 +52,6 @@ void displayImages(SDL_Surface *screen)
         SDL_Delay(500); // Adjusted delay to 500 milliseconds
     }
 }
-
 void loadHoverSound()
 {
     // Load hover sound
@@ -65,13 +64,12 @@ void loadHoverSound()
 void loadSelectSound()
 {
     // Load select sound
-    selectSound = Mix_LoadWAV("assets/select.wav");
+    selectSound = Mix_LoadWAV("assets/select_short.wav");
     if (selectSound == NULL)
     {
         printf("Unable to load sound select.wav! SDL_mixer Error: %s\n", Mix_GetError());
     }
 }
-
 void playHoverSound()
 {
     // If the hover sound has already been played or not loaded, return
@@ -90,7 +88,6 @@ void playHoverSound()
 
     // Set the flag to true to indicate that the sound has been played
     hoverSoundPlayed = true;
-    printf("ray\n");
 }
 void stopHoverSound()
 {
@@ -120,7 +117,7 @@ void playSelectSound()
 
     // Set the flag to true to indicate that the sound has been played
     selectSoundPlayed = true;
-    printf("ray\n");
+  
 }
 void stopSelectSound()
 {
@@ -132,6 +129,99 @@ void stopSelectSound()
     }
 }
 
+void handleSettings(SDL_Surface *screen)
+{
+    // Load background image
+    SDL_Surface *settingsBackground = IMG_Load("assets/background1.jpg");
+    if (settingsBackground == NULL)
+    {
+        printf("Failed to load background image: %s\n", IMG_GetError());
+        return;
+    }
+
+    // Load button images
+    SDL_Surface *buttonFullscreen = IMG_Load("assets/full.png");
+    SDL_Surface *buttonWindowed = IMG_Load("assets/window.png");
+    if (buttonFullscreen == NULL || buttonWindowed == NULL)
+    {
+        printf("Failed to load button images: %s\n", IMG_GetError());
+        SDL_FreeSurface(settingsBackground); // Free the background surface
+        return;
+    }
+
+    // Set the initial position of the background and buttons
+    SDL_Rect settingsPosition = {0, 0, 0, 0};
+    SDL_Rect buttonFullscreenPosition = {100, 200, 0, 0};
+    SDL_Rect buttonWindowedPosition = {100, 400, 0, 0};
+
+    // Blit the background and buttons to the screen
+    SDL_BlitSurface(settingsBackground, NULL, screen, &settingsPosition);
+    SDL_BlitSurface(buttonFullscreen, NULL, screen, &buttonFullscreenPosition);
+    SDL_BlitSurface(buttonWindowed, NULL, screen, &buttonWindowedPosition);
+    SDL_Flip(screen);
+
+    bool settingsPage = true;
+    SDL_Event event;
+    while (settingsPage)
+    {
+        while (SDL_PollEvent(&event))
+        {
+            if (event.type == SDL_QUIT)
+            {
+                settingsPage = false;
+            }
+            else if (event.type == SDL_MOUSEBUTTONDOWN)
+            {
+                int mouse_x = event.button.x;
+                int mouse_y = event.button.y;
+                if (mouse_x >= 100 && mouse_x <= 300 &&
+                    mouse_y >= 200 && mouse_y <= 300)
+                {
+                    // Set fullscreen mode
+                    SDL_WM_ToggleFullScreen(screen);
+                    // Redraw the background after changing the screen mode
+                    SDL_BlitSurface(settingsBackground, NULL, screen, &settingsPosition);
+                    SDL_BlitSurface(buttonFullscreen, NULL, screen, &buttonFullscreenPosition);
+                    SDL_BlitSurface(buttonWindowed, NULL, screen, &buttonWindowedPosition);
+                    SDL_Flip(screen);
+                }
+                else if (mouse_x >= 100 && mouse_x <= 300 &&
+                         mouse_y >= 400 && mouse_y <= 500)
+                {
+                    // Set windowed mode
+                    SDL_SetVideoMode(1457, 817, 32, SDL_SWSURFACE);
+                    // Redraw the background after changing the screen mode
+                    SDL_BlitSurface(settingsBackground, NULL, screen, &settingsPosition);
+                    SDL_BlitSurface(buttonFullscreen, NULL, screen, &buttonFullscreenPosition);
+                    SDL_BlitSurface(buttonWindowed, NULL, screen, &buttonWindowedPosition);
+                    SDL_Flip(screen);
+                }
+            }
+            else if (event.type == SDL_KEYDOWN)
+            {
+                if (event.key.keysym.sym == SDLK_q)
+                {
+                    // Quit the application
+                    settingsPage = false;
+                    SDL_BlitSurface(background, NULL, screen, &backgroundPosition);
+                    SDL_Flip(screen);
+                }
+            }
+        }
+    }
+
+    // Free the surface for the background and buttons after the loop exits
+    SDL_FreeSurface(settingsBackground);
+    SDL_FreeSurface(buttonFullscreen);
+    SDL_FreeSurface(buttonWindowed);
+}
+
+
+
+
+
+
+
 int main(int argc, char *argv[])
 {
 
@@ -140,7 +230,7 @@ int main(int argc, char *argv[])
     SDL_WM_SetCaption("SDL Background with Music", NULL);
 
     // Load background image
-    SDL_Surface *background = IMG_Load("assets/background.png");
+    background = IMG_Load("assets/background.png");
 
     // Load new window background image
     SDL_Surface *map = IMG_Load("assets/map.png");
@@ -163,9 +253,9 @@ int main(int argc, char *argv[])
     // Play the background music indefinitely
     Mix_PlayMusic(music, -1);
 
-        Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
+    Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
 
-
+    
     // Initialize SDL_ttf
     TTF_Init();
     TTF_Font *font = TTF_OpenFont("arial.ttf", 24); // Change "arial.ttf" to the path of your font file
@@ -264,8 +354,12 @@ int main(int argc, char *argv[])
                     mouse_y >= 360 && mouse_y <= 380)
                 {
                     displayImages(screen);
-                    // Click detected within button1 area, perform action to switch to another page
                     buttonClicked = true;
+                }
+                else if (mouse_x >= 971 && mouse_x <= 1211 &&
+                         mouse_y >= 431 && mouse_y <= 475)
+                {
+                    handleSettings(screen);
                 }
                 else if (mouse_x >= 1000 && mouse_x <= 1370 &&
                          mouse_y >= 522 && mouse_y <= 566)
