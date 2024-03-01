@@ -414,12 +414,13 @@ int main(int argc, char *argv[])
                 {
                     stopHoverSound();
                     stopSelectSound();
-                    if (ScreenCleared >=0 && (ScreenCleared < 2 )){
-                                ScreenCleared ++;
+                    if (ScreenCleared >= 0 && (ScreenCleared < 2))
+                    {
+                        ScreenCleared++;
                     }
-                    if (ScreenCleared>=1){
-                    SDL_BlitSurface(cover, NULL, screen, NULL);
-
+                    if (ScreenCleared >= 1)
+                    {
+                        SDL_BlitSurface(cover, NULL, screen, NULL);
                     }
 
                     // Clear button image
@@ -448,6 +449,21 @@ int main(int argc, char *argv[])
                     quit = 1;
                 }
                 break;
+            case SDL_KEYDOWN:
+                if (event.key.keysym.sym == SDLK_q)
+                {
+                    // Quit the application
+                    quit = 1;
+                }
+                else if (event.key.keysym.sym == SDLK_p)
+                {
+                    displayImages(screen);
+                    buttonClicked = true;
+                }
+                else if (event.key.keysym.sym == SDLK_s)
+                {
+                    handleSettings(screen);
+                }
             }
         }
 
