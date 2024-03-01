@@ -3,6 +3,10 @@
         "sdl.h": "c",
         "sdl_image.h": "c",
         "sdl_ttf.h": "c",
-        "new_window.h": "c"
+        "new_window.h": "c",
+        "stdbool.h": "c",
+        "sdl_mixer.h": "c",
+        "functions.h": "c",
+        "function.h": "c"
     }
 }
